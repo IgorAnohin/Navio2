@@ -57,23 +57,35 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (argc < 2) {
-        printf("Enter parameter\n");
-        print_help();
-        return EXIT_FAILURE;
-    }
+    int version = get_NAVIO_version();
 
-    // prevent the error message
-    opterr = 0;
+    if (version == NAVIO2) {
 
-    while ((parameter = getopt(argc, argv, "i:h")) != -1) {
-        switch (parameter) {
-        case 'i': sensor_name = optarg; break;
-        case 'h': print_help(); return EXIT_FAILURE;
-        case '?': printf("Wrong parameter.\n");
-                  print_help();
-                  return EXIT_FAILURE;
+
+        if (argc < 2) {
+            printf("Enter parameter\n");
+            print_help();
+            return EXIT_FAILURE;
         }
+
+        // prevent the error message
+        opterr = 0;
+
+        while ((parameter = getopt(argc, argv, "i:h")) != -1) {
+            switch (parameter) {
+            case 'i': sensor_name = optarg; break;
+            case 'h': print_help(); return EXIT_FAILURE;
+            case '?': printf("Wrong parameter.\n");
+                      print_help();
+                      return EXIT_FAILURE;
+            }
+        }
+
+    } else { //sensor on NAVIO+
+
+        sensor_name = (char *) malloc(4);
+        strcpy(sensor_name, "mpu");
+        //sensor_name = "mpu";
     }
 
     InertialSensor *sensor = create_inertial_sensor(sensor_name);
