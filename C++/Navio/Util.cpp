@@ -72,6 +72,6 @@ bool check_apm()
 int get_NAVIO_version()
 {
     int version;
-    int error = read_file("/sys/firmware/devicetree/base/hat/product_id", "%x",&version);
+    read_file("/sys/firmware/devicetree/base/hat/product_id", "%x",&version);
     return version;
 }
