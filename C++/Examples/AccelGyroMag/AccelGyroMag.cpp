@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
 
         sensor_name = (char *) malloc(4);
         strcpy(sensor_name, "mpu");
-        //sensor_name = "mpu";
     }
 
     InertialSensor *sensor = create_inertial_sensor(sensor_name);
