@@ -1,8 +1,11 @@
 import sys
 import time
+import math
 
 import navio.pwm
+import navio.gpio
 import navio.util
+from navio.adafruit_pwm_servo_driver import PWM
 
 navio.util.check_apm()
 
@@ -10,12 +13,39 @@ PWM_OUTPUT = 0
 SERVO_MIN = 1.250 #ms
 SERVO_MAX = 1.750 #ms
 
-with navio.pwm.PWM(PWM_OUTPUT) as pwm:
-    pwm.set_period(50)
-    pwm.enable()
+if (navio.util.get_NAVIO_version() == "NAVIO2"):
 
-    while (True):
-        pwm.set_duty_cycle(SERVO_MIN)
-        time.sleep(1)
-        pwm.set_duty_cycle(SERVO_MAX)
-        time.sleep(1)
+	with navio.pwm.PWM(PWM_OUTPUT) as pwm:
+	    pwm.set_period(50)
+	    pwm.enable()
+
+	    while (True):
+		pwm.set_duty_cycle(SERVO_MIN)
+		time.sleep(1)
+		pwm.set_duty_cycle(SERVO_MAX)
+		time.sleep(1)
+else:
+
+	#drive Output Enable in PCA low
+	pin = navio.gpio.Pin(27)
+	pin.write(0)
+
+	PCA9685_DEFAULT_ADDRESS = 0x40
+	frequency = 50
+
+	NAVIO_RCOUTPUT_1 = 3
+
+	#convert mS to 0-4096 scale:
+	SERVO_MIN_ms = math.trunc((SERVO_MIN * 4096.0) / (1000.0 / frequency) - 1)
+	SERVO_MAX_ms = math.trunc((SERVO_MAX * 4096.0) / (1000.0 / frequency) - 1)
+
+	pwm = PWM(0x40, debug=False)
+
+	# Set frequency to 60 Hz
+	pwm.setPWMFreq(frequency)
+
+	while(True):
+		pwm.setPWM(NAVIO_RCOUTPUT_1, 0, SERVO_MIN_ms);
+		time.sleep(1);
+		pwm.setPWM(NAVIO_RCOUTPUT_1, 0, SERVO_MAX_ms);
+		time.sleep(1);
