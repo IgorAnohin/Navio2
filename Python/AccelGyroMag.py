@@ -35,27 +35,32 @@ import navio.util
 
 navio.util.check_apm()
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", help = "Sensor selection: -i [sensor name]. Sensors names: mpu is MPU9250, lsm is LSM9DS1")
+if (navio.util.get_NAVIO_version() == "NAVIO2"):
 
-if len(sys.argv) == 1:
-    print "Enter parameter"
-    parser.print_help()
-    sys.exit(1)
-elif len(sys.argv) == 2:
-    sys.exit("Enter sensor name: mpu or lsm")
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-i", help = "Sensor selection: -i [sensor name]. Sensors names: mpu is MPU9250, lsm is LSM9DS1")
 
-args = parser.parse_args()
+	if len(sys.argv) == 1:
+	    print "Enter parameter"
+	    parser.print_help()
+	    sys.exit(1)
+	elif len(sys.argv) == 2:
+	    sys.exit("Enter sensor name: mpu or lsm")
 
-if args.i == 'mpu':
-    print "Selected: MPU9250"
-    imu = navio.mpu9250.MPU9250()
-elif args.i == 'lsm':
-    print "Selected: LSM9DS1"
-    imu = navio.lsm9ds1.LSM9DS1()
+	args = parser.parse_args()
+
+	if args.i == 'mpu':
+	    print "Selected: MPU9250"
+	    imu = navio.mpu9250.MPU9250()
+	elif args.i == 'lsm':
+	    print "Selected: LSM9DS1"
+	    imu = navio.lsm9ds1.LSM9DS1()
+	else:
+	    print "Wrong sensor name. Select: mpu or lsm"
+	    sys.exit(1)
 else:
-    print "Wrong sensor name. Select: mpu or lsm"
-    sys.exit(1)
+	print "Selected: MPU9250"
+	imu = navio.mpu9250.MPU9250()
 
 
 
