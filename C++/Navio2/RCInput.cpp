@@ -5,7 +5,7 @@
 #include <err.h>
 
 #include "RCInput.h"
-#include "Util.h"
+#include "../Common/Util.h"
 
 #define RCIN_SYSFS_PATH "/sys/kernel/rcio/rcin"
 

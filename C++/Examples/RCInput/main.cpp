@@ -1,8 +1,8 @@
 #include <unistd.h>
 #include <cstdio>
 
-#include <Navio/RCInput.h>
-#include "Navio/Util.h"
+#include <Navio2/RCInput.h>
+#include "Common/Util.h"
 
 int main(int argc, char *argv[])
 {

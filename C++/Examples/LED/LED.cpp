@@ -1,7 +1,7 @@
-#include "Navio/RGBled.h"
-#include "Navio/Util.h"
-#include <Navio/gpio.h>
-#include "Navio/PCA9685.h"
+#include "Navio2/RGBled.h"
+#include "Common/Util.h"
+#include <Common/gpio.h>
+#include "Navio+/PCA9685.h"
 
 using namespace Navio;
 

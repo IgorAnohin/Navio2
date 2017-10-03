@@ -1,9 +1,9 @@
 CXX ?= g++
-NAVIO = ../../Navio
+NAVIO = ../..
 INCLUDES = -I ../..
 
 all:
-	$(CXX) $(INCLUDES) AHRS.cpp $(NAVIO)/MPU9250.cpp $(NAVIO)/LSM9DS1.cpp $(NAVIO)/Util.cpp -o AHRS -lrt -lpthread
+	$(CXX) $(INCLUDES) AHRS.cpp $(NAVIO)/Common/MPU9250.cpp $(NAVIO)/Navio2/LSM9DS1.cpp $(NAVIO)/Common/Util.cpp -o AHRS -lrt -lpthread
 
 clean:
 	rm AHRS

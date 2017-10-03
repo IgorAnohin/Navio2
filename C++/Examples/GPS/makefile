@@ -1,6 +1,6 @@
 CXX ?=g++
 CFLAGS=-c -Wall
-NAVIO = ../../Navio
+NAVIO = ../../Common
 INCLUDES = -I ../..
 
 all: gps

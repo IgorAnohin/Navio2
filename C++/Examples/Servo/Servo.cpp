@@ -14,10 +14,10 @@ sudo ./Servo
 */
 
 #include <unistd.h>
-#include "Navio/PWM.h"
-#include <Navio/gpio.h>
-#include "Navio/PCA9685.h"
-#include "Navio/Util.h"
+#include "Navio2/PWM.h"
+#include <Common/gpio.h>
+#include "Navio+/PCA9685.h"
+#include "Common/Util.h"
 
 #define PWM_OUTPUT 0
 #define NAVIO_RCOUTPUT_1 3

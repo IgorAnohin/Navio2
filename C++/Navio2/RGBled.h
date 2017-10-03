@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <cstdint>
-#include "gpio.h"
+#include "Common/gpio.h"
 
 enum class Colors {
     Black,
