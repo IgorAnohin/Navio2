@@ -21,24 +21,26 @@ For print help:
 #include "Navio2/LSM9DS1.h"
 #include "Common/Util.h"
 #include <unistd.h>
+#include <string>
+#include <memory>
 
-InertialSensor* create_inertial_sensor(char *sensor_name)
+std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
 {
     InertialSensor *imu;
 
-    if (!strcmp(sensor_name, "mpu")) {
+    if (sensor_name == "mpu") {
         printf("Selected: MPU9250\n");
-        imu = new MPU9250();
+        auto ptr = std::unique_ptr <InertialSensor>{ new MPU9250() };
+        return ptr;
     }
-    else if (!strcmp(sensor_name, "lsm")) {
+    else if (sensor_name == "lsm") {
         printf("Selected: LSM9DS1\n");
-        imu = new LSM9DS1();
+        auto ptr = std::unique_ptr <InertialSensor>{ new LSM9DS1() };
+        return ptr;
     }
     else {
         return NULL;
     }
-
-    return imu;
 }
 
 void print_help()
@@ -47,47 +49,50 @@ void print_help()
     printf("Sensors names: mpu is MPU9250, lsm is LSM9DS1\nFor help: -h\n");
 }
 
-//=============================================================================
-int main(int argc, char *argv[])
+std::string get_sensor_name(int argc, char *argv[])
 {
-    int parameter;
-    char *sensor_name;
-
-    if (check_apm()) {
-        return 1;
-    }
-
-    int version = get_NAVIO_version();
-
-    if (version == NAVIO2) {
-
+    if (get_navio_version() == NAVIO2) {
 
         if (argc < 2) {
             printf("Enter parameter\n");
             print_help();
-            return EXIT_FAILURE;
+            return "-1";
         }
 
         // prevent the error message
         opterr = 0;
+        int parameter;
 
         while ((parameter = getopt(argc, argv, "i:h")) != -1) {
             switch (parameter) {
-            case 'i': sensor_name = optarg; break;
-            case 'h': print_help(); return EXIT_FAILURE;
+            case 'i': if (!strcmp(optarg,"mpu") ) return "mpu";
+                            else return "lsm";
+            case 'h': print_help(); return "-1";
             case '?': printf("Wrong parameter.\n");
                       print_help();
-                      return EXIT_FAILURE;
+                      return "-1";
             }
         }
 
     } else { //sensor on NAVIO+
 
-        sensor_name = (char *) malloc(4);
-        strcpy(sensor_name, "mpu");
+        return "mpu";
     }
 
-    InertialSensor *sensor = create_inertial_sensor(sensor_name);
+}
+//=============================================================================
+int main(int argc, char *argv[])
+{
+
+    if (check_apm()) {
+        return 1;
+    }
+
+    auto sensor_name = get_sensor_name(argc, argv);
+    if (sensor_name == "-1")
+        return EXIT_FAILURE;
+
+    auto sensor = get_inertial_sensor(sensor_name);
 
     if (!sensor) {
         printf("Wrong sensor name. Select: mpu or lsm\n");

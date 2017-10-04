@@ -8,7 +8,7 @@
 
 int main()
 {
-    if (get_NAVIO_version() == NAVIO2) {
+    if (get_navio_version() == NAVIO2) {
 
         fprintf(stderr, "No FRAM on NAVIO2\n");
         return 1;

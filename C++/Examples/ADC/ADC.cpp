@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    int version = get_NAVIO_version();
+    int version = get_navio_version();
 
     if (version == NAVIO2) {
 

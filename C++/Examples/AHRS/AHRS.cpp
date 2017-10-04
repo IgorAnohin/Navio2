@@ -217,10 +217,37 @@ int main(int argc, char *argv[])
     char *sensor_name;
 
     if (check_apm()) {
+//       printf(ardupilot runs)
         return 1;
     }
 
-    int version = get_NAVIO_version();
+    /*
+
+    int version = get_navio_version();
+
+    auto sensor_name = get_sensor_name();
+    auto imu = get_inertial_sensor(sensor_name);
+
+    if (imu == nullptr) {
+
+    }
+
+    imu->probe() with check
+    imu_setup(imu.get())
+
+    verify if argv
+
+    Socket socket(argv[3], argv[4]))-> class Socket () {
+        look at ardupilot Socket
+    }
+
+
+    while (true) {
+        imu_loop(imu.get(), socket);
+    }
+
+    */
+
 
     if (version == NAVIO2) {
 

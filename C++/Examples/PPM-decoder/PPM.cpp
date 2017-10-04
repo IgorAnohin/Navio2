@@ -72,7 +72,7 @@ using namespace Navio;
 
 int main(int argc, char *argv[])
 {
-    if (get_NAVIO_version() == NAVIO2) {
+    if (get_navio_version() == NAVIO2) {
 
         fprintf(stderr,"Use RCInput instead of PPM on NAVIO2\n");
         return 1;

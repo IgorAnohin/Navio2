@@ -30,7 +30,7 @@ using namespace Navio;
 int main()
 {
 
-    int version = get_NAVIO_version();
+    int version = get_navio_version();
 
     if (version == NAVIO2) {
 
