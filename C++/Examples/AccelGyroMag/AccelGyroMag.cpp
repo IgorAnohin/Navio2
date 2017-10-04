@@ -26,8 +26,6 @@ For print help:
 
 std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
 {
-    InertialSensor *imu;
-
     if (sensor_name == "mpu") {
         printf("Selected: MPU9250\n");
         auto ptr = std::unique_ptr <InertialSensor>{ new MPU9250() };

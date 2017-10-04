@@ -24,12 +24,14 @@ chrt -f -p 99 PID
 */
 
 #include <stdio.h>
+#include <memory>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <memory>
 #include "Common/MPU9250.h"
 #include "Navio2/LSM9DS1.h"
 #include "Common/Util.h"
@@ -38,16 +40,78 @@ chrt -f -p 99 PID
 #define G_SI 9.80665
 #define PI   3.14159
 
-// Objects
+//#####
 
-InertialSensor *imu;
+
+std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
+{
+    if (sensor_name == "mpu") {
+        printf("Selected: MPU9250\n");
+        auto ptr = std::unique_ptr <InertialSensor>{ new MPU9250() };
+        return ptr;
+    }
+    else if (sensor_name == "lsm") {
+        printf("Selected: LSM9DS1\n");
+        auto ptr = std::unique_ptr <InertialSensor>{ new LSM9DS1() };
+        return ptr;
+    }
+    else {
+        return NULL;
+    }
+}
+
+void print_help()
+{
+    printf("Possible parameters:\nSensor selection: -i [sensor name]\n");
+    printf("Sensors names: mpu is MPU9250, lsm is LSM9DS1\nFor help: -h\n");
+    printf("If you want to visualize IMU data on another machine,\n");
+    printf("add IP address and port number (by default 7000):\n");
+    printf("-i [sensor name] ipaddress portnumber\n");
+
+}
+
+std::string get_sensor_name(int argc, char *argv[])
+{
+    if (get_navio_version() == NAVIO2) {
+
+        if (argc < 2) {
+            printf("Enter parameter\n");
+            print_help();
+            return "-1";
+        }
+
+        // prevent the error message
+        opterr = 0;
+        int parameter;
+
+        while ((parameter = getopt(argc, argv, "i:h")) != -1) {
+            switch (parameter) {
+            case 'i': if (!strcmp(optarg,"mpu") ) return "mpu";
+                            else return "lsm";
+            case 'h': print_help(); return "-1";
+            case '?': printf("Wrong parameter.\n");
+                      print_help();
+                      return "-1";
+            }
+        }
+
+    } else { //sensor on NAVIO+
+
+        return "mpu";
+    }
+
+}
+
+
+//#####
+
+// Objects
 AHRS    ahrs;   // Mahony AHRS
 
 // Sensor data
 
 float ax, ay, az;
 float gx, gy, gz;
-float mx, my, mz;
 
 // Orientation data
 
@@ -69,34 +133,8 @@ int sockfd;
 struct sockaddr_in servaddr = {0};
 char sendline[80];
 
-InertialSensor* create_inertial_sensor(char *sensor_name)
-{
-    InertialSensor *imu;
 
-    if (!strcmp(sensor_name, "mpu")) {
-        printf("Selected: MPU9250\n");
-        imu = new MPU9250();
-    }
-    else if (!strcmp(sensor_name, "lsm")) {
-        printf("Selected: LSM9DS1\n");
-        imu = new LSM9DS1();
-    }
-    else {
-        return NULL;
-    }
 
-    return imu;
-}
-
-void print_help()
-{
-    printf("Possible parameters:\nSensor selection: -i [sensor name]\n");
-    printf("Sensors names: mpu is MPU9250, lsm is LSM9DS1\nFor help: -h\n");
-    printf("If you want to visualize IMU data on another machine,\n");
-    printf("add IP address and port number (by default 7000):\n");
-    printf("-i [sensor name] ipaddress portnumber\n");
-
-}
 
 //============================= Initial setup =================================
 
@@ -162,23 +200,6 @@ void imuLoop()
 
     ahrs.updateIMU(ax, ay, az, gx*0.0175, gy*0.0175, gz*0.0175, dt);
 
-    // Accel + gyro + mag.
-    // Soft and hard iron calibration required for proper function.
-    /*
-    imu->update();
-    imu->read_accelerometer(&ax, &ay, &az);
-    imu->read_gyroscope(&gx, &gy, &gz);
-    imu->read_magnetometer(&mx, &my, &mz);
-
-    ax /= G_SI;
-    ay /= G_SI;
-    az /= G_SI;
-    gx *= 180 / PI;
-    gy *= 180 / PI;
-    gz *= 180 / PI;
-
-    ahrs.update(ax, ay, az, gx*0.0175, gy*0.0175, gz*0.0175, my, mx, -mz, dt);
-    */
 
     //------------------------ Read Euler angles ------------------------------
 
@@ -217,13 +238,13 @@ int main(int argc, char *argv[])
     char *sensor_name;
 
     if (check_apm()) {
-//       printf(ardupilot runs)
         return 1;
     }
-
     /*
 
     int version = get_navio_version();
+
+    if (get_navio_version() == NAVIO2)
 
     auto sensor_name = get_sensor_name();
     auto imu = get_inertial_sensor(sensor_name);
@@ -247,36 +268,10 @@ int main(int argc, char *argv[])
     }
 
     */
+    auto sensor_name = get_sensor_name();
 
 
-    if (version == NAVIO2) {
-
-        if (argc < 2) {
-            printf("Enter parameter\n");
-            print_help();
-            return EXIT_FAILURE;
-        }
-
-        // prevent the error message
-        opterr=0;
-
-        while ((parameter = getopt(argc, argv, "i:h")) != -1) {
-            switch (parameter) {
-            case 'i': sensor_name = optarg; break;
-            case 'h': print_help(); return EXIT_FAILURE;
-            case '?': printf("Wrong parameter.\n");
-                      print_help();
-                      return EXIT_FAILURE;
-            }
-        }
-
-    } else {
-        sensor_name = (char *) malloc(4);
-        strcpy(sensor_name, "mpu");
-
-    }
-
-    imu = create_inertial_sensor(sensor_name);
+    auto imu = create_inertial_sensor(sensor_name);
 
     if (!imu) {
         printf("Wrong sensor name. Select: mpu or lsm\n");
