@@ -1,58 +1,53 @@
 #include "Navio2/RGBled.h"
+#include <memory>
 #include "Common/Util.h"
 #include <Common/gpio.h>
+#include <Common/led.h>
 #include "Navio+/PCA9685.h"
 
 using namespace Navio;
 
 
-int main()
+class Led_navio2 : public Led
 {
-
-    if (check_apm()) {
-        return 1;
+    RGBled LED;
+    virtual void initialize()
+    {
+        if(!LED.initialize()) return EXIT_FAILURE;
     }
 
-    int version = get_navio_version();
+    virtual void settColor(Colors c)
+    {
+        switch (c)
+            case Colors::Yellow:
+                LED.setColor(Colors::Yellow);
+                break;
+            case Colors::Green:
+                LED.setColor(Colors::Green);
+                break;
+            case Colors::Cyan:
+                LED.setColor(Colors::Cyan);
+                break;
+            case Colors::Magenta:
+                LED.setColor(Colors::Magenta);
+                break;
+            case Colors::Re:
+                LED.setColor(Colors::Red);
+                break;
+            case Colors::Blue:
+                LED.setColor(Colors::Blue);
+                break;
+    }
 
-    if (version == NAVIO2) {
+};
 
-        RGBled led;
+class Led_navio : public Led
+{
+    PCA9685 pwm;
 
-        if(!led.initialize()) return EXIT_FAILURE;
-        led.setColor(Colors::Yellow);
-        printf("LED is yellow\n");
-        sleep(1);
-
-        while (true) {
-            led.setColor(Colors::Green);
-            printf("LED is green\n");
-            sleep(1);
-
-            led.setColor(Colors::Cyan);
-            printf("LED is cyan\n");
-            sleep(1);
-
-            led.setColor(Colors::Blue);
-            printf("LED is blue\n");
-            sleep(1);
-
-            led.setColor(Colors::Magenta);
-            printf("LED is magenta\n");
-            sleep(1);
-
-            led.setColor(Colors::Red);
-            printf("LED is red\n");
-            sleep(1);
-
-            led.setColor(Colors::Yellow);
-            printf("LED is yellow\n");
-            sleep(1);
-        }
-    } else {
-
+    virtual void initialize()
+    {
         static const uint8_t outputEnablePin = RPI_GPIO_27;
-
 
         Pin pin(outputEnablePin);
 
@@ -64,54 +59,93 @@ int main()
             return 1;
         }
 
-        PCA9685 pwm;
-
         pwm.initialize();
+    }
 
-        uint16_t R = 0, G = 0, B = 4095;
+    virtual void settColor(Color c)
+    {
+        switch (c)
+            case Color.YELLOW:
+                pwm.setPWM(2, 0);
+                pwm.setPWM(1, 0);
+                pwm.setPWM(0, 4095);
+                break;
+            case Color.GREEN:
+                pwm.setPWM(2, 4095);
+                pwm.setPWM(1, 0);
+                pwm.setPWM(0, 4095);
+                break;
+            case Color.CYAN:
+                pwm.setPWM(2, 4095);
+                pwm.setPWM(1, 0);
+                pwm.setPWM(0, 0);
+                break;
+            case Color.MAGENTA:
+                LED.setColor(Colors::Magenta);
+                pwm.setPWM(2, 0);
+                pwm.setPWM(1, 4095);
+                pwm.setPWM(0, 0);
+                break;
+            case Color.RED:
+                pwm.setPWM(2, 0);
+                pwm.setPWM(1, 4095);
+                pwm.setPWM(0, 4095);
+                break;
+            case Color.BLUE:
+                pwm.setPWM(2, 4095);
+                pwm.setPWM(1, 4095);
+                pwm.setPWM(0, 0);
+                break;
+    }
 
-        pwm.setPWM(2, R);
-        pwm.setPWM(1, G);
-        pwm.setPWM(0, B);
-        printf("LED is yellow\n");
-        sleep(1);
+};
+
+
+std::unique_ptr <Led> Get_led()
+{
+    if (get_navio_version() == NAVIO2)
+        auto ptr = std::unique_ptr <Led>{ new Led_navio2() };
+    else
+        auto ptr = std::unique_ptr <Led>{ new Led_navio() };
+
+    return ptr;
+
+}
+
+int main()
+{
+
+    if (check_apm()) {
+        return 1;
+    }
+
+    auto led = Get_led();
 
         while (true) {
-            for (R = 0; R < 4095; R++)
-                pwm.setPWM(2, R);
+            led -> setColor(Colors::Green);
             printf("LED is green\n");
             sleep(1);
 
-            for (B = 4095; B > 0; B--)
-                pwm.setPWM(0, B);
+            led -> setColor(Colors::Cyan);
             printf("LED is cyan\n");
             sleep(1);
 
-            for (G = 0; G < 4095; G++)
-                pwm.setPWM(1, G);
+            led -> setColor(Colors::Blue);
             printf("LED is blue\n");
             sleep(1);
 
-            for (R = 4095; R > 0; R--)
-                pwm.setPWM(2, R);
+            led -> setColor(Colors::Magenta);
             printf("LED is magenta\n");
             sleep(1);
 
-            for (B = 0; B < 4095; B++)
-                pwm.setPWM(0, B);
+            led -> setColor(Colors::Red);
             printf("LED is red\n");
             sleep(1);
 
-            for (G = 4095; G > 0; G--)
-                pwm.setPWM(1, G);
+            led -> setColor(Colors::Yellow);
             printf("LED is yellow\n");
             sleep(1);
-
         }
-
-
-    }
-
 
     return 0;
 }
