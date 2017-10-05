@@ -42,6 +42,40 @@ chrt -f -p 99 PID
 
 //#####
 
+class Socket
+{
+
+public:
+    Socket(char * ip,char * port)
+    {
+        sockfd = socket(AF_INET,SOCK_DGRAM,0);
+        servaddr.sin_family = AF_INET;
+        servaddr.sin_addr.s_addr = inet_addr(ip);
+        servaddr.sin_port = htons(atoi(port));
+    }
+
+    Socket()
+    {
+        sockfd = socket(AF_INET,SOCK_DGRAM,0);
+        servaddr.sin_family = AF_INET;
+        servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+        servaddr.sin_port = htons(7000);
+    }
+
+    void output(float W, float X, float Y, float Z, int Hz)
+    {
+        sprintf(sendline,"%10f %10f %10f %10f %dHz\n", W, X, Y, Z, Hz);
+        sendto(sockfd, sendline, strlen(sendline), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
+    }
+
+private:
+    int sockfd;
+    struct sockaddr_in servaddr = {0};
+    char sendline[80];
+
+};
+
+
 
 std::unique_ptr <InertialSensor> get_inertial_sensor( std::string sensor_name)
 {
@@ -108,53 +142,29 @@ std::string get_sensor_name(int argc, char *argv[])
 // Objects
 AHRS    ahrs;   // Mahony AHRS
 
-// Sensor data
-
-float ax, ay, az;
-float gx, gy, gz;
-
-// Orientation data
-
-float roll, pitch, yaw;
-
-// Timing data
-
-float offset[3];
-struct timeval tv;
-float dt, maxdt;
-float mindt = 0.01;
-unsigned long previoustime, currenttime;
-float dtsumm = 0;
-int isFirst = 1;
-
-// Network data
-
-int sockfd;
-struct sockaddr_in servaddr = {0};
-char sendline[80];
-
-
-
-
 //============================= Initial setup =================================
 
-void imuSetup()
+std::unique_ptr <InertialSensor> imuSetup(std::unique_ptr <InertialSensor> sensor)
 {
+    float offset[3];
+    float gx, gy, gz;
+
+
     //----------------------- MPU initialization ------------------------------
 
-    imu->initialize();
+    sensor->initialize();
 
     //-------------------------------------------------------------------------
 
 	printf("Beginning Gyro calibration...\n");
 	for(int i = 0; i<100; i++)
 	{
-		imu->update();
-    imu->read_gyroscope(&gx, &gy, &gz);
+        sensor->update();
+        sensor->read_gyroscope(&gx, &gy, &gz);
 
-    gx *= 180 / PI;
-    gy *= 180 / PI;
-    gz *= 180 / PI;
+        gx *= 180 / PI;
+        gy *= 180 / PI;
+        gz *= 180 / PI;
 
 		offset[0] += (-gx*0.0175);
 		offset[1] += (-gy*0.0175);
@@ -167,12 +177,35 @@ void imuSetup()
 
 	printf("Offsets are: %f %f %f\n", offset[0], offset[1], offset[2]);
 	ahrs.setGyroOffset(offset[0], offset[1], offset[2]);
+
+    return sensor;
 }
 
 //============================== Main loop ====================================
 
-void imuLoop()
+void imuLoop( InertialSensor * sensor, Socket sock)
 {
+    // Sensor data
+
+    float ax, ay, az;
+    float gx, gy, gz;
+
+    // Orientation data
+
+    float roll, pitch, yaw;
+
+    struct timeval tv;
+    float dt;
+    // Timing data
+
+
+    static float maxdt;
+    static float mindt = 0.01;
+    static float dtsumm = 0;
+    static int isFirst = 1;
+    static unsigned long previoustime, currenttime;
+
+
     //----------------------- Calculate delta time ----------------------------
 
 	gettimeofday(&tv,NULL);
@@ -187,9 +220,9 @@ void imuLoop()
     //-------- Read raw measurements from the MPU and update AHRS --------------
 
     // Accel + gyro.
-    imu->update();
-    imu->read_accelerometer(&ax, &ay, &az);
-    imu->read_gyroscope(&gx, &gy, &gz);
+    sensor->update();
+    sensor->read_accelerometer(&ax, &ay, &az);
+    sensor->read_gyroscope(&gx, &gy, &gz);
 
     ax /= G_SI;
     ay /= G_SI;
@@ -223,8 +256,7 @@ void imuLoop()
         printf("ROLL: %+05.2f PITCH: %+05.2f YAW: %+05.2f PERIOD %.4fs RATE %dHz \n", roll, pitch, yaw * -1, dt, int(1/dt));
 
         // Network output
-        sprintf(sendline,"%10f %10f %10f %10f %dHz\n", ahrs.getW(), ahrs.getX(), ahrs.getY(), ahrs.getZ(), int(1/dt));
-        sendto(sockfd, sendline, strlen(sendline), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
+        sock.output( ahrs.getW(), ahrs.getX(), ahrs.getY(), ahrs.getZ(), int(1/dt));
 
         dtsumm = 0;
     }
@@ -235,43 +267,13 @@ void imuLoop()
 int main(int argc, char *argv[])
 {
     int parameter;
-    char *sensor_name;
 
     if (check_apm()) {
         return 1;
     }
-    /*
 
-    int version = get_navio_version();
-
-    if (get_navio_version() == NAVIO2)
-
-    auto sensor_name = get_sensor_name();
+    auto sensor_name = get_sensor_name(argc, argv);
     auto imu = get_inertial_sensor(sensor_name);
-
-    if (imu == nullptr) {
-
-    }
-
-    imu->probe() with check
-    imu_setup(imu.get())
-
-    verify if argv
-
-    Socket socket(argv[3], argv[4]))-> class Socket () {
-        look at ardupilot Socket
-    }
-
-
-    while (true) {
-        imu_loop(imu.get(), socket);
-    }
-
-    */
-    auto sensor_name = get_sensor_name();
-
-
-    auto imu = create_inertial_sensor(sensor_name);
 
     if (!imu) {
         printf("Wrong sensor name. Select: mpu or lsm\n");
@@ -282,23 +284,20 @@ int main(int argc, char *argv[])
         printf("Sensor not enable\n");
         return EXIT_FAILURE;
     }
+
     //--------------------------- Network setup -------------------------------
 
-    sockfd = socket(AF_INET,SOCK_DGRAM,0);
-    servaddr.sin_family = AF_INET;
+    Socket sock;
 
-    if (argc == 5)  {
-        servaddr.sin_addr.s_addr = inet_addr(argv[3]);
-        servaddr.sin_port = htons(atoi(argv[4]));
-    } else {
-        servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-        servaddr.sin_port = htons(7000);
-    }
+    if (argc == 5)
+        sock = Socket(argv[3], argv[4]);
+    else
+        sock = Socket();
 
     //-------------------- IMU setup and main loop ----------------------------
 
-    imuSetup();
+    imu = imuSetup( move(imu) );
 
     while(1)
-        imuLoop();
+        imuLoop(imu.get(), sock);
 }
