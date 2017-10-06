@@ -15,7 +15,7 @@ enum class Colors {
 class Led {
 
 public:
-    virtual int initialize() = 0;
+    virtual bool initialize() = 0;
     virtual void setColor(Colors c) = 0;
 
 };
