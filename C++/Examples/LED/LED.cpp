@@ -2,7 +2,7 @@
 #include <memory>
 #include "Common/Util.h"
 #include <Common/gpio.h>
-#include <Common/led.h>
+#include <Common/Led.h>
 #include "Navio+/PCA9685.h"
 
 using namespace Navio;
@@ -10,33 +10,17 @@ using namespace Navio;
 
 class Led_navio2 : public Led
 {
-    RGBled LED;
-    virtual void initialize()
+    RGBled pwn;
+
+    int initialize()
     {
-        if(!LED.initialize()) return EXIT_FAILURE;
+        if(!pwn.initialize()) return EXIT_FAILURE;
     }
 
-    virtual void settColor(Colors c)
+    void setColor(Colors color)
     {
-        switch (c)
-            case Colors::Yellow:
-                LED.setColor(Colors::Yellow);
-                break;
-            case Colors::Green:
-                LED.setColor(Colors::Green);
-                break;
-            case Colors::Cyan:
-                LED.setColor(Colors::Cyan);
-                break;
-            case Colors::Magenta:
-                LED.setColor(Colors::Magenta);
-                break;
-            case Colors::Re:
-                LED.setColor(Colors::Red);
-                break;
-            case Colors::Blue:
-                LED.setColor(Colors::Blue);
-                break;
+         pwn.setColor(color);
+
     }
 
 };
@@ -45,7 +29,7 @@ class Led_navio : public Led
 {
     PCA9685 pwm;
 
-    virtual void initialize()
+    int initialize()
     {
         static const uint8_t outputEnablePin = RPI_GPIO_27;
 
@@ -56,46 +40,47 @@ class Led_navio : public Led
             pin.write(0); /* drive Output Enable low */
         } else {
             fprintf(stderr, "Output Enable not set. Are you root?\n");
-            return 1;
+            return EXIT_FAILURE;
         }
 
         pwm.initialize();
     }
 
-    virtual void settColor(Color c)
+    void setColor(Colors color)
     {
-        switch (c)
-            case Color.YELLOW:
+        switch (color)
+        {
+            case Colors::Yellow:
                 pwm.setPWM(2, 0);
                 pwm.setPWM(1, 0);
                 pwm.setPWM(0, 4095);
                 break;
-            case Color.GREEN:
+            case Colors::Green:
                 pwm.setPWM(2, 4095);
                 pwm.setPWM(1, 0);
                 pwm.setPWM(0, 4095);
                 break;
-            case Color.CYAN:
+            case Colors::Cyan:
                 pwm.setPWM(2, 4095);
                 pwm.setPWM(1, 0);
                 pwm.setPWM(0, 0);
                 break;
-            case Color.MAGENTA:
-                LED.setColor(Colors::Magenta);
+            case Colors::Magenta:
                 pwm.setPWM(2, 0);
                 pwm.setPWM(1, 4095);
                 pwm.setPWM(0, 0);
                 break;
-            case Color.RED:
+            case Colors::Red:
                 pwm.setPWM(2, 0);
                 pwm.setPWM(1, 4095);
                 pwm.setPWM(0, 4095);
                 break;
-            case Color.BLUE:
+            case Colors::Blue:
                 pwm.setPWM(2, 4095);
                 pwm.setPWM(1, 4095);
                 pwm.setPWM(0, 0);
                 break;
+        }
     }
 
 };
@@ -104,11 +89,15 @@ class Led_navio : public Led
 std::unique_ptr <Led> Get_led()
 {
     if (get_navio_version() == NAVIO2)
+    {
         auto ptr = std::unique_ptr <Led>{ new Led_navio2() };
-    else
+        return ptr;
+    } else
+    {
         auto ptr = std::unique_ptr <Led>{ new Led_navio() };
+        return ptr;
+    }
 
-    return ptr;
 
 }
 
@@ -120,6 +109,8 @@ int main()
     }
 
     auto led = Get_led();
+    if (led -> initialize() == EXIT_FAILURE)
+        return EXIT_FAILURE;
 
         while (true) {
             led -> setColor(Colors::Green);
