@@ -1,14 +1,15 @@
 #pragma once
 
 #include <cstddef>
+#include <Common/RCInput.h>
 
-class RCInput 
+class RCInput_Navio2 : public RCInput
 {
 public:
-    void init();
+    void initialize();
     int read(int ch); 
-    RCInput();
-    ~RCInput();
+    RCInput_Navio2();
+    ~RCInput_Navio2();
 
 private:
     int open_channel(int ch);
