@@ -15,74 +15,51 @@ sudo ./Servo
 
 #include <unistd.h>
 #include "Navio2/PWM.h"
-#include <Common/gpio.h>
-#include "Navio+/PCA9685.h"
+#include "Navio+/RCOutput_Navio.h"
+#include "Navio2/RCOutput_Navio2.h"
 #include "Common/Util.h"
+#include <memory>
 
-#define PWM_OUTPUT 0
-#define NAVIO_RCOUTPUT_1 3
-#define SERVO_MIN 1.250 /*mS*/
-#define SERVO_MAX 1.750 /*mS*/
+#define SERVO_MIN 1250 /*mS*/
+#define SERVO_MAX 1750 /*mS*/
+#define PWN_OUTPUT 0
 
 using namespace Navio;
 
+std::unique_ptr <RCOutput> get_rcout()
+{
+    if (get_navio_version() == NAVIO2)
+    {
+        auto ptr = std::unique_ptr <RCOutput>{ new RCOutput_Navio2() };
+        return ptr;
+    } else
+    {
+        auto ptr = std::unique_ptr <RCOutput>{ new RCOutput_Navio() };
+        return ptr;
+    }
+
+}
 
 int main()
 {
 
-    int version = get_navio_version();
-
-    if (version == NAVIO2) {
-
-        PWM pwm;
+        auto pwm = get_rcout();
 
         if (check_apm()) {
             return 1;
         }
 
-        if (!pwm.init(PWM_OUTPUT)) {
-            fprintf(stderr, "Output Enable not set. Are you root?\n");
-            return 0;
-        }
+        if( !(pwm->initialize()) )
+        return 1;
 
-        pwm.enable(PWM_OUTPUT);
-        pwm.set_period(PWM_OUTPUT, 50);
+        pwm->setFrequency(50);
 
         while (true) {
-            pwm.set_duty_cycle(PWM_OUTPUT, SERVO_MIN);
+            pwm->set_duty_cycle(PWN_OUTPUT, SERVO_MIN);
             sleep(1);
-            pwm.set_duty_cycle(PWM_OUTPUT, SERVO_MAX);
-            sleep(1);
-        }
-
-    } else {
-
-        static const uint8_t outputEnablePin = RPI_GPIO_27;
-
-
-        Pin pin(outputEnablePin);
-
-        if (pin.init()) {
-            pin.setMode(Pin::GpioModeOutput);
-            pin.write(0); /* drive Output Enable low */
-        } else {
-            fprintf(stderr, "Output Enable not set. Are you root?\n");
-            return 1;
-        }
-
-        PCA9685 pwm;
-
-        pwm.initialize();
-        pwm.setFrequency(50);
-
-        while (true) {
-            pwm.setPWMmS(NAVIO_RCOUTPUT_1, SERVO_MIN);
-            sleep(1);
-            pwm.setPWMmS(NAVIO_RCOUTPUT_1, SERVO_MAX);
+            pwm->set_duty_cycle(PWN_OUTPUT, SERVO_MAX);
             sleep(1);
         }
-    }
-
 
     return 0;
 }
