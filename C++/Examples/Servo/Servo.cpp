@@ -22,7 +22,6 @@ sudo ./Servo
 
 #define SERVO_MIN 1250 /*mS*/
 #define SERVO_MAX 1750 /*mS*/
-#define PWN_OUTPUT 0
 
 using namespace Navio;
 
@@ -55,7 +54,7 @@ int main()
         pwm->setFrequency(50);
 
         while (true) {
-            pwm->set_duty_cycle(PWN_OUTPUT, SERVO_MIN);
+            pwm->set_duty_cycle(PWN_OUTPUT, SERVO_MIN); //To change the channel, you need to change PWN_OUTPUT
             sleep(1);
             pwm->set_duty_cycle(PWN_OUTPUT, SERVO_MAX);
             sleep(1);

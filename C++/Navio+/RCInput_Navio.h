@@ -4,7 +4,6 @@
 #include <pigpio.h>
 #include <Common/RCInput.h>
 #include <Common/gpio.h>
-#include <Common/RCOutput.h>
 #include "RCOutput_Navio.h"
 #include "Common/Util.h"
 

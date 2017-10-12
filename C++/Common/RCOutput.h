@@ -1,6 +1,9 @@
 #ifndef RCOUTPUT
 #define RCOUTPUT
 
+#define PWN_OUTPUT 0
+
+
 class RCOutput
 {
 public:
