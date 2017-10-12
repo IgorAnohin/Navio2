@@ -1,5 +1,4 @@
 #include "RCInput_Navio.h"
-#include "RCOutput_Navio.h"
 
 RCInput_Navio::RCInput_Navio()
 {
@@ -23,14 +22,8 @@ void RCInput_Navio::ppmOnEdge(int gpio, int level, uint32_t tick)
         deltaTime = tick - previousTick;
         previousTick = tick;
 
-        if (deltaTime >= ppmSyncLength) { // Sync
+        if (deltaTime >= ppmSyncLength) // Sync
             currentChannel = 0;
-
-            // RC output
-            for (int i = 0; i < ppmChannelsNumber; i++)
-                pwm->set_duty_cycle(i+3, channels[i] / 1000); // 1st Navio RC output is 3
-
-        }
         else
             if (currentChannel < ppmChannelsNumber)
                 channels[currentChannel++] = deltaTime;
@@ -47,12 +40,6 @@ void RCInput_Navio::initialize()
     } else {
         fprintf(stderr, "Output Enable not set. Are you root?");
     }
-
-    // Servo controller setup
-
-    pwm = new RCOutput_Navio();
-    pwm->initialize();
-    pwm->setFrequency(servoFrequency);
 
     // GPIO setup
 
