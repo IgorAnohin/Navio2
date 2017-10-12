@@ -4,7 +4,8 @@
 #include <pigpio.h>
 #include <Common/RCInput.h>
 #include <Common/gpio.h>
-#include "Navio+/PCA9685.h"
+#include <Common/RCOutput.h>
+#include "RCOutput_Navio.h"
 #include "Common/Util.h"
 
 using namespace Navio;
@@ -37,7 +38,7 @@ private:
 
     //============================ Objects & data ==================================
 
-    PCA9685 *pwm;
+    RCOutput *pwm;
     float channels[8];
 
     //============================== PPM decoder ===================================

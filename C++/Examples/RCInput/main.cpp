@@ -33,10 +33,11 @@ int main(int argc, char *argv[])
 
     rcin->initialize();
 
-    while (true) 
+    while (true)
     {
-        int period = rcin->read(2);
+        int period = rcin->read(0);
         printf("%d\n", period);
+
         
         sleep(1);
     }

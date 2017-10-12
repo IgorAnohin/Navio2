@@ -1,4 +1,5 @@
 #include "RCInput_Navio.h"
+#include "RCOutput_Navio.h"
 
 RCInput_Navio::RCInput_Navio()
 {
@@ -9,14 +10,14 @@ RCInput_Navio::~RCInput_Navio()
 {
 }
 
-static void RCInput_Navio::ppmOnEdgeTrampolin(int gpio, int level, uint32_t tick, void *userdata)
+void RCInput_Navio::ppmOnEdgeTrampolin(int gpio, int level, uint32_t tick, void *userdata)
 {
     RCInput_Navio *self = (RCInput_Navio *) userdata;
 
     self->ppmOnEdge(gpio, level, tick);
 }
 
-void RCInput_Navio::ppmOnEdge(int gpio, int level, uint32_t tick, void *userdata)
+void RCInput_Navio::ppmOnEdge(int gpio, int level, uint32_t tick)
     {
     if (level == 0) {
         deltaTime = tick - previousTick;
@@ -27,7 +28,7 @@ void RCInput_Navio::ppmOnEdge(int gpio, int level, uint32_t tick, void *userdata
 
             // RC output
             for (int i = 0; i < ppmChannelsNumber; i++)
-                self->pwm->setPWMuS(i + 3, channels[i]); // 1st Navio RC output is 3
+                pwm->set_duty_cycle(i+3, channels[i] / 1000); // 1st Navio RC output is 3
 
         }
         else
@@ -49,7 +50,7 @@ void RCInput_Navio::initialize()
 
     // Servo controller setup
 
-    pwm = new PCA9685();
+    pwm = new RCOutput_Navio();
     pwm->initialize();
     pwm->setFrequency(servoFrequency);
 
@@ -57,6 +58,8 @@ void RCInput_Navio::initialize()
 
     gpioCfgClock(samplingRate, PI_DEFAULT_CLK_PERIPHERAL, 0);
     gpioInitialise();
+    gpioSetMode(4,PI_INPUT);
+
     previousTick = gpioTick();
     gpioSetAlertFuncEx(ppmInputGpio, RCInput_Navio::ppmOnEdgeTrampolin, this);
 }
