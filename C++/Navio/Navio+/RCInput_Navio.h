@@ -2,10 +2,10 @@
 #define RCINPUT_NAVIO_H
 
 #include <pigpio.h>
+#include <stdio.h>
 #include <Common/RCInput.h>
 #include <Common/gpio.h>
-#include "RCOutput_Navio.h"
-#include "Common/Util.h"
+#include <Common/Util.h>
 
 using namespace Navio;
 
@@ -35,9 +35,8 @@ private:
     unsigned int servoFrequency    = 50;     // Servo control frequency
     bool verboseOutputEnabled      = true;   // Output channels values to console
 
-    //============================ Objects & data ==================================
+    //================================== Data ======================================
 
-    RCOutput *pwm;
     float channels[8];
 
     //============================== PPM decoder ===================================
