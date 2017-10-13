@@ -9,5 +9,7 @@ set(LibrariesCommon
 set(HeadersCommon
 		${CMAKE_CURRENT_SOURCE_DIR}/I2Cdev.h
 		${CMAKE_CURRENT_SOURCE_DIR}/Led.h
+		${CMAKE_CURRENT_SOURCE_DIR}/RCInput.h
+		${CMAKE_CURRENT_SOURCE_DIR}/RCOutput.h
 		PARENT_SCOPE)
 
