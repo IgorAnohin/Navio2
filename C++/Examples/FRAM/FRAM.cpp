@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "Common/I2Cdev.h"
-#include "Common/Util.h"
-#include "Navio+/MB85RC256.h"
+#include <Common/I2Cdev.h>
+#include <Common/Util.h>
+#include <Navio+/MB85RC256.h>
 
 // 32768 bytes >> 0x8000 >> 15 bit address
 

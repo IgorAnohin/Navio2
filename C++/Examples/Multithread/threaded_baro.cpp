@@ -10,8 +10,8 @@ make
 sudo ./threaded_baro
 */
 
-#include "Common/MS5611.h"
-#include "Common/Util.h"
+#include <Common/MS5611.h>
+#include <Common/Util.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <pthread.h>

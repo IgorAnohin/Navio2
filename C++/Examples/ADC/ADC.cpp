@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <Common/Util.h>
 #include <Navio2/ADC.h>
-#include "Navio+/ADS1115.h"
+#include <Navio+/ADS1115.h>
 
 
 int main(int argc, char *argv[])
