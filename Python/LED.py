@@ -7,7 +7,7 @@ import navio.Navio.Led_Navio
 
 def get_sensor():
 	if (navio.Common.util.get_navio_version() == "NAVIO2"):
-		return navio.Navio2.Led_Navio2.Led_Navio2()
+		return navio.Navio2.Led_Navio2()
 	else:
 		return navio.Navio.Led_Navio()
 
