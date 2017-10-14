@@ -1,12 +1,20 @@
-import sys
-
-import navio.leds
 import time
-import navio.util
 
-navio.util.check_apm()
+import navio.Common.util
+import navio.Navio2.Led_Navio2
+import navio.Navio.Led_Navio
+# from Adafruit_PWM_Servo_Driver import PWM for NAVIO+
 
-led = navio.leds.Led()
+def get_sensor():
+	if (navio.Common.util.get_navio_version() == "NAVIO2"):
+		return navio.Navio2.Led_Navio2.Led_Navio2()
+	else:
+		return navio.Navio.Led_Navio()
+
+
+navio.Common.util.check_apm()
+
+led = get_sensor()
 
 led.setColor('Yellow')
 print "LED is yellow"
@@ -37,3 +45,4 @@ while (True):
     led.setColor('Yellow')
     print "LED is yellow"
     time.sleep(1)
+

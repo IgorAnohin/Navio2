@@ -1,13 +1,18 @@
-import sys, time
+import time
 
-import navio.rcinput
-import navio.util
+import navio.Common.util
 
-navio.util.check_apm()
+import navio.Navio2.rcinput
 
-rcin = navio.rcinput.RCInput()
+navio.Common.util.check_apm()
 
-while (True):
-    period = rcin.read(2)
-    print period
-    time.sleep(1)
+if navio.Common.util.get_navio_version() == "NAVIO2":
+
+    rcin = navio.Navio2.rcinput.RCInput()
+
+    while (True):
+        period = rcin.read(2)
+        print period
+        time.sleep(1)
+else:
+    print "No RCInput on Navio+"

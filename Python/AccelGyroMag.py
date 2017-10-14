@@ -30,34 +30,43 @@ import spidev
 import time
 import argparse 
 import sys
-import navio.mpu9250
-import navio.util
 
-navio.util.check_apm()
+import navio.Common.mpu9250
+import navio.Common.util
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", help = "Sensor selection: -i [sensor name]. Sensors names: mpu is MPU9250, lsm is LSM9DS1")
+navio.Common.util.check_apm()
 
-if len(sys.argv) == 1:
-    print "Enter parameter"
-    parser.print_help()
-    sys.exit(1)
-elif len(sys.argv) == 2:
-    sys.exit("Enter sensor name: mpu or lsm")
+def get_inertial_sensor():
 
-args = parser.parse_args()
+	if (navio.Common.util.get_navio_version() == "NAVIO2"):
 
-if args.i == 'mpu':
-    print "Selected: MPU9250"
-    imu = navio.mpu9250.MPU9250()
-elif args.i == 'lsm':
-    print "Selected: LSM9DS1"
-    imu = navio.lsm9ds1.LSM9DS1()
-else:
-    print "Wrong sensor name. Select: mpu or lsm"
-    sys.exit(1)
+		parser = argparse.ArgumentParser()
+		parser.add_argument("-i", help = "Sensor selection: -i [sensor name]. Sensors names: mpu is MPU9250, lsm is LSM9DS1")
+
+		if len(sys.argv) == 1:
+		    print "Enter parameter"
+		    parser.print_help()
+		    sys.exit(1)
+		elif len(sys.argv) == 2:
+		    sys.exit("Enter sensor name: mpu or lsm")
+
+		args = parser.parse_args()
+
+		if args.i == 'mpu':
+		    print "Selected: MPU9250"
+		    return navio.Common.mpu9250.MPU9250()
+		elif args.i == 'lsm':
+		    print "Selected: LSM9DS1"
+		    return navio.Navio2.lsm9ds1.LSM9DS1()
+		else:
+		    print "Wrong sensor name. Select: mpu or lsm"
+		    sys.exit(1)
+	else:
+		print "Selected: MPU9250"
+		return navio.Common.mpu9250.MPU9250()
 
 
+imu = get_inertial_sensor();
 
 if imu.testConnection():
     print "Connection established: True"
