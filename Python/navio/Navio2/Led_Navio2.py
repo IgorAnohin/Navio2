@@ -9,7 +9,7 @@ class Pin():
         with open("/sys/class/leds/%s/brightness" % self.pin, "w") as value_file:
             value_file.write(str(value))
 
-class Led():
+class Led_Navio2():
 
     def __init__(self):
         self.ledR = Pin("rgb_led0")
