@@ -33,6 +33,7 @@ import sys
 
 import navio.Common.mpu9250
 import navio.Common.util
+import navio.Navio2.lsm9ds1
 
 navio.Common.util.check_apm()
 
