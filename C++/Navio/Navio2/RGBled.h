@@ -16,6 +16,7 @@ public:
     void setColor(Colors color);
 
 private:
+    void get_failed_pin();
     Navio::Pin *pinR;
     Navio::Pin *pinG;
     Navio::Pin *pinB;

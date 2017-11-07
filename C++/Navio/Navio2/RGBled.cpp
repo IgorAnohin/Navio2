@@ -10,11 +10,22 @@ RGBled::RGBled()
 {
 }
 
+void RGBled::get_failed_pin()
+{
+	if (!pinR->init())
+		fprintf(stderr, "Gpio 4: pin's initialization failed\n");
+	if (!pinG->init())
+		fprintf(stderr, "Gpio 27: pin's initialization failed\n");
+	if (!pinB->init())
+		fprintf(stderr, "Gpio 6: pin's initialization failed\n");
+	fprintf(stderr, "\nTry \"sudo ./LED\"\n");
+}
+
 bool RGBled::initialize() {
     pinR = new Pin(RPI_GPIO_4);
     pinG = new Pin(RPI_GPIO_27);
     pinB = new Pin(RPI_GPIO_6);
-    if (pinR->init() & pinG->init() & pinB->init()) {
+    if (pinR->init() && pinG->init() && pinB->init()) {
         pinR->setMode(Pin::GpioModeOutput);
         pinG->setMode(Pin::GpioModeOutput);
         pinB->setMode(Pin::GpioModeOutput);
@@ -25,7 +36,7 @@ bool RGBled::initialize() {
         pinB->write(OFF);
     }
     else {
-        fprintf(stderr, "Output enable not set. Are you root?\n");
+	get_failed_pin();
         return false;
     }
     return true;
