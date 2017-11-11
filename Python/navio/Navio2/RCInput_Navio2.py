@@ -1,4 +1,4 @@
-class RCInput():
+class RCInput_Navio2():
     CHANNEL_COUNT = 14
     channels = []
 
