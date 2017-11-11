@@ -2,13 +2,13 @@ import time
 
 import navio.Common.util
 
-import navio.Navio2.rcinput
+import navio.Navio2.RCInput_Navio2
 import navio.Navio.RCInput_Navio
 
 def get_rcin():
     if navio.Common.util.get_navio_version() == "NAVIO2":
 
-        return navio.Navio2.rcinput.RCInput()
+        return navio.Navio2.RCInput_Navio2.RCInput_Navio2()
     else:
         return navio.Navio.RCInput_Navio.RCInput_Navio()
 
