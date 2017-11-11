@@ -1,4 +1,3 @@
-import gpio
 from .adafruit_pwm_servo_driver import PWM
 import RPi.GPIO as GPIO
 
@@ -8,13 +7,9 @@ class Led_Navio():
 
     def __init__(self):
 
-        # drive Output Enable in PCA low
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(27, GPIO.OUT)
         GPIO.output(27, GPIO.LOW)
-
-        #pin = gpio.Pin(27)
-        #pin.write(0)
 
         self.pwm = PWM(0x40, debug=False)
 
