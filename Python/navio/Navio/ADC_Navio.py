@@ -31,6 +31,6 @@ class ADC_Navio():
         self.adc = adafruit_ads1x15.ADS1x15(ic=self.ADS1115)
 
     def read(self, ch):
-        return self.adc.readADCSingleEnded(0, self.gain, self.sps)
+        return self.adc.readADCSingleEnded(ch, self.gain, self.sps)
 
 
