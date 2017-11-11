@@ -1,7 +1,6 @@
 import math
 import time
 
-import RPi.GPIO as GPIO
 
 import navio.Common.util
 import navio.Navio2.pwm
@@ -31,11 +30,6 @@ else:
 	#pin = navio.Navio.gpio.Pin(27)
 	#pin.write(0)
 
-	GPIO.setmode(GPIO.BCM)
-	GPIO.setup(27, GPIO.OUT)
-	GPIO.output(27, GPIO.LOW)
-
-	PCA9685_DEFAULT_ADDRESS = 0x40
 	frequency = 50
 
 	NAVIO_RCOUTPUT_1 = 3
@@ -49,8 +43,3 @@ else:
 	# Set frequency to 60 Hz
 	pwm.setPWMFreq(frequency)
 
-	while(True):
-		pwm.setPWM(NAVIO_RCOUTPUT_1, 0, SERVO_MIN_ms);
-		time.sleep(1);
-		pwm.setPWM(NAVIO_RCOUTPUT_1, 0, SERVO_MAX_ms);
-		time.sleep(1);
