@@ -1,6 +1,8 @@
 import os.path
 
-class PWM():
+class RCOutput_Navio2():
+    SERVO_MIN = 1.250  # ms
+    SERVO_MAX = 1.750  # ms
     SYSFS_PWM_PATH_BASE = "/sys/class/pwm/pwmchip0/"
     SYSFS_PWM_EXPORT_PATH = "/sys/class/pwm/pwmchip0/export"
     SYSFS_PWM_UNEXPORT_PATH = "/sys/class/pwm/pwmchip0/unexport"
