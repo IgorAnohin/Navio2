@@ -3,6 +3,8 @@ import pigpio
 
 class RCInput_Navio():
 
+    PPM_SYNC_LENGTH = 4000
+
     CHANNEL_COUNT = 8
     channels = [0,0,0,0,0,0,0,0]
 
@@ -11,7 +13,7 @@ class RCInput_Navio():
             deltaTime = tick - self.previousTick
             self.previousTick = tick
 
-            if (deltaTime >= 4000):
+            if (deltaTime >= self.PPM_SYNC_LENGTH):
                 self.currentchannel = 0
             else:
                 if (self.currentchannel < self.CHANNEL_COUNT):
