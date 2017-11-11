@@ -3,7 +3,6 @@ import time
 import navio.Common.util
 import navio.Navio2.Led_Navio2
 import navio.Navio.Led_Navio
-# from Adafruit_PWM_Servo_Driver import PWM for NAVIO+
 
 def get_sensor():
 	if (navio.Common.util.get_navio_version() == "NAVIO2"):
