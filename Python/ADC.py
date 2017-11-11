@@ -1,6 +1,6 @@
 import sys, signal, time
 
-import navio.Navio2.adc
+import navio.Navio2.ADC_Navio2
 import navio.Navio.ADC_Navio
 import navio.Common.util
 
@@ -19,7 +19,7 @@ def get_converter():
     if (navio.Common.util.get_navio_version() == "NAVIO"):
         return navio.Navio.ADC_Navio.ADC_Navio()
     else:
-        return navio.Navio2.adc.ADC()
+        return navio.Navio2.ADC_Navio2.ADC_Navio2()
 
 
 
